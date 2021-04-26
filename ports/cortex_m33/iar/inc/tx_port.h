@@ -26,7 +26,7 @@
 /*  PORT SPECIFIC C INFORMATION                            RELEASE        */
 /*                                                                        */
 /*    tx_port.h                                         Cortex-M33/IAR    */
-/*                                                           6.0.1        */
+/*                                                            6.1.5       */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -47,7 +47,10 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-30-2020     Scott Larson             Initial Version 6.0.1         */
+/*  09-30-2020      Scott Larson            Initial Version 6.1           */
+/*  03-02-2021      Scott Larson            Modified comment(s), added    */
+/*                                            ULONG64_DEFINED,            */
+/*                                            resulting in version 6.1.5  */
 /*                                                                        */
 /**************************************************************************/
 
@@ -85,6 +88,7 @@ typedef unsigned long                           ULONG;
 typedef unsigned long long                      ULONG64;
 typedef short                                   SHORT;
 typedef unsigned short                          USHORT;
+#define ULONG64_DEFINED
 
 /* Function prototypes for this port. */
 struct  TX_THREAD_STRUCT;
@@ -556,7 +560,7 @@ __istate_t interrupt_save;
 
 #ifdef TX_THREAD_INIT
 CHAR                            _tx_version_id[] = 
-                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  ThreadX Cortex-M33/IAR Version 6.0.1 *";
+                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  ThreadX Cortex-M33/IAR Version 6.1 *";
 #else
 #ifdef TX_MISRA_ENABLE
 extern  CHAR                    _tx_version_id[100];

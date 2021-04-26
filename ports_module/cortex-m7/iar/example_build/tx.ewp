@@ -66,7 +66,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.50.1.24770</state>
+                    <state>8.50.9.33458</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -349,11 +349,11 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>../inc</state>
-                    <state>../module_manager/inc</state>
-                    <state>../../../../common/inc</state>
-                    <state>../../../../common_modules/inc</state>
-                    <state>../../../../common_modules/module_manager/inc</state>
+                    <state>$PROJ_DIR$\..\inc</state>
+                    <state>$PROJ_DIR$\..\module_manager\inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\common\inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\common_modules\inc</state>
+                    <state>$PROJ_DIR$\..\..\..\..\common_modules\module_manager\inc</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -481,7 +481,7 @@
             <name>AARM</name>
             <archiveVersion>2</archiveVersion>
             <data>
-                <version>10</version>
+                <version>11</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>1</debug>
                 <option>
@@ -636,6 +636,10 @@
                 <option>
                     <name>AsmNoLiteralPool</name>
                     <state>0</state>
+                </option>
+                <option>
+                    <name>PreInclude</name>
+                    <state></state>
                 </option>
             </data>
         </settings>
@@ -1050,7 +1054,7 @@
                 </option>
                 <option>
                     <name>IarchiveOutput</name>
-                    <state>C:\Users\nisohack\Documents\work\tasks\st_work\threadx_07242020_rc2\ports_module\cortex-m7\iar\example_build\Debug\Exe\tx.a</state>
+                    <state>C:\Users\andrejm\work\git\AzureRTOS\threadx\ports_module\cortex-m7\iar\example_build\Debug\Exe\tx.a</state>
                 </option>
             </data>
         </settings>
@@ -1176,7 +1180,7 @@
                 </option>
                 <option>
                     <name>RTConfigPath2</name>
-                    <state>dl-stnl0.a</state>
+                    <state></state>
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
@@ -1541,7 +1545,7 @@
             <name>AARM</name>
             <archiveVersion>2</archiveVersion>
             <data>
-                <version>10</version>
+                <version>11</version>
                 <wantNonLocal>1</wantNonLocal>
                 <debug>0</debug>
                 <option>
@@ -1696,6 +1700,10 @@
                 <option>
                     <name>AsmNoLiteralPool</name>
                     <state>0</state>
+                </option>
+                <option>
+                    <name>PreInclude</name>
+                    <state></state>
                 </option>
             </data>
         </settings>
@@ -2146,7 +2154,7 @@
             <name>$PROJ_DIR$\..\..\..\..\common\inc\tx_mutex.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\module_common\inc\tx_port.h</name>
+            <name>$PROJ_DIR$\..\inc\tx_port.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\common\inc\tx_queue.h</name>
@@ -2167,7 +2175,7 @@
             <name>$PROJ_DIR$\..\..\..\..\common\inc\tx_user_sample.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\..\..\..\common_modules\txm_module.h</name>
+            <name>$PROJ_DIR$\..\..\..\..\common_modules\inc\txm_module.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\common_modules\module_manager\inc\txm_module_manager_dispatch.h</name>
@@ -2176,7 +2184,7 @@
             <name>$PROJ_DIR$\..\..\..\..\common_modules\module_manager\inc\txm_module_manager_util.h</name>
         </file>
         <file>
-            <name>$PROJ_DIR$\..\module_common\inc\txm_module_port.h</name>
+            <name>$PROJ_DIR$\..\inc\txm_module_port.h</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\common_modules\inc\txm_module_user.h</name>
@@ -2765,6 +2773,9 @@
         </file>
         <file>
             <name>$PROJ_DIR$\..\..\..\..\common\src\txe_timer_info_get.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\..\common_modules\module_manager\src\txm_module_manager_absolute_load.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\..\module_manager\src\txm_module_manager_alignment_adjust.c</name>

@@ -26,7 +26,7 @@
 /*  PORT SPECIFIC C INFORMATION                            RELEASE        */
 /*                                                                        */
 /*    tx_port.h                                         Cortex-M7/AC5     */
-/*                                                           6.0.1        */
+/*                                                           6.1.6        */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -47,7 +47,10 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-30-2020     William E. Lamie         Initial Version 6.0.1         */
+/*  09-30-2020     William E. Lamie         Initial Version 6.1           */
+/*  04-02-2021     Bhupendra Naphade        Modified comment(s),updated   */
+/*                                            macro definition,           */
+/*                                            resulting in version 6.1.6  */
 /*                                                                        */
 /**************************************************************************/
 
@@ -113,7 +116,7 @@ typedef unsigned short                          USHORT;
 #endif
 
 
-/* Define various constants for the ThreadX Cortex-M3 port.  */
+/* Define various constants for the ThreadX Cortex-M7 port.  */
 
 #define TX_INT_DISABLE                          1           /* Disable interrupts               */
 #define TX_INT_ENABLE                           0           /* Enable interrupts                */
@@ -128,15 +131,9 @@ typedef unsigned short                          USHORT;
 
 */
 
-#ifndef TX_MISRA_ENABLE
 #ifndef TX_TRACE_TIME_SOURCE
 #define TX_TRACE_TIME_SOURCE                    *((ULONG *) 0xE0001004)  
 #endif
-#else
-ULONG   _tx_misra_time_stamp_get(VOID);
-#define TX_TRACE_TIME_SOURCE                    _tx_misra_time_stamp_get()
-#endif
-
 #ifndef TX_TRACE_TIME_MASK
 #define TX_TRACE_TIME_MASK                      0xFFFFFFFFUL
 #endif
@@ -145,18 +142,14 @@ ULONG   _tx_misra_time_stamp_get(VOID);
 /* Define the port specific options for the _tx_build_options variable. This variable indicates
    how the ThreadX library was built.  */
 
-#define TX_PORT_SPECIFIC_BUILD_OPTIONS          (0)
+#define TX_PORT_SPECIFIC_BUILD_OPTIONS          0
 
 
 /* Define the in-line initialization constant so that modules with in-line
    initialization capabilities can prevent their initialization from being
    a function call.  */
 
-#ifdef TX_MISRA_ENABLE
-#define TX_DISABLE_INLINE
-#else
 #define TX_INLINE_INITIALIZATION
-#endif
 
 
 /* Determine whether or not stack checking is enabled. By default, ThreadX stack checking is 
@@ -165,10 +158,8 @@ ULONG   _tx_misra_time_stamp_get(VOID);
    define is negated, thereby forcing the stack fill which is necessary for the stack checking
    logic.  */
 
-#ifndef TX_MISRA_ENABLE
 #ifdef TX_ENABLE_STACK_CHECKING
 #undef TX_DISABLE_STACK_FILLING
-#endif
 #endif
 
 
@@ -176,8 +167,8 @@ ULONG   _tx_misra_time_stamp_get(VOID);
    for the multiple macros is so that backward compatibility can be maintained with 
    existing ThreadX kernel awareness modules.  */
 
-#define TX_THREAD_EXTENSION_0          
-#define TX_THREAD_EXTENSION_1                  
+#define TX_THREAD_EXTENSION_0
+#define TX_THREAD_EXTENSION_1
 #define TX_THREAD_EXTENSION_2               VOID    *tx_thread_module_instance_ptr;         \
                                             VOID    *tx_thread_module_entry_info_ptr;       \
                                             ULONG   tx_thread_module_current_user_mode;     \
@@ -191,20 +182,23 @@ ULONG   _tx_misra_time_stamp_get(VOID);
                                             VOID    *tx_thread_module_stack_end;            \
                                             ULONG   tx_thread_module_stack_size;            \
                                             VOID    *tx_thread_module_reserved;
-#define TX_THREAD_EXTENSION_3          
+#define TX_THREAD_EXTENSION_3
 
 
 /* Define the port extensions of the remaining ThreadX objects.  */
 
 #define TX_BLOCK_POOL_EXTENSION
 #define TX_BYTE_POOL_EXTENSION
+#define TX_MUTEX_EXTENSION
 #define TX_EVENT_FLAGS_GROUP_EXTENSION          VOID    *tx_event_flags_group_module_instance; \
                                                 VOID   (*tx_event_flags_group_set_module_notify)(struct TX_EVENT_FLAGS_GROUP_STRUCT *group_ptr);
-#define TX_MUTEX_EXTENSION
+
 #define TX_QUEUE_EXTENSION                      VOID    *tx_queue_module_instance; \
                                                 VOID   (*tx_queue_send_module_notify)(struct TX_QUEUE_STRUCT *queue_ptr);
+
 #define TX_SEMAPHORE_EXTENSION                  VOID    *tx_semaphore_module_instance; \
                                                 VOID   (*tx_semaphore_put_module_notify)(struct TX_SEMAPHORE_STRUCT *semaphore_ptr);
+
 #define TX_TIMER_EXTENSION                      VOID    *tx_timer_module_instance; \
                                                 VOID   (*tx_timer_module_expiration_function)(ULONG id);
 
@@ -224,13 +218,9 @@ ULONG   _tx_misra_time_stamp_get(VOID);
 #define TX_THREAD_CREATE_EXTENSION(thread_ptr)                                  
 #define TX_THREAD_DELETE_EXTENSION(thread_ptr)                                  
 
-
 #ifndef TX_MISRA_ENABLE
-
 register unsigned int _ipsr __asm("ipsr");
-
 #endif
-
 
 #ifdef __TARGET_FPU_VFP
 
@@ -271,6 +261,7 @@ register ULONG  _control __asm("control");
                                                                     }
                                                                     
 #endif
+
 
 /* A thread can be terminated by another thread, so we first check if it's self-terminating and not in an ISR.
    If so, deactivate the FPU via CONTROL.FPCA. Otherwise we are in an interrupt or another thread is terminating
@@ -353,6 +344,8 @@ void _tx_vfp_access(void);
 #endif
 
 
+
+
 /* Define the ThreadX object creation extensions for the remaining objects.  */
 
 #define TX_BLOCK_POOL_CREATE_EXTENSION(pool_ptr)
@@ -403,7 +396,7 @@ ULONG   _tx_misra_ipsr_get(VOID);
 #define TX_PORT_SPECIFIC_POST_INITIALIZATION    _tx_thread_preempt_disable++;
 
 
-/* Determine if the ARM architecture has the CLZ instruction. This is available on 
+/* This ARM architecture has the CLZ instruction. This is available on 
    architectures v5 and above. If available, redefine the macro for calculating the 
    lowest bit set.  */
 
@@ -434,7 +427,7 @@ VOID                                            _tx_thread_interrupt_restore(UIN
 
 #else
 
-#define TX_INTERRUPT_SAVE_AREA                  unsigned int  was_masked;
+#define TX_INTERRUPT_SAVE_AREA                  UINT was_masked;
 #define TX_DISABLE                              was_masked = __disable_irq();
 #define TX_RESTORE                              if (was_masked == 0) __enable_irq();
 
@@ -470,7 +463,7 @@ void    tx_thread_fpu_disable(void);
 
 #ifdef TX_THREAD_INIT
 CHAR                            _tx_version_id[] = 
-                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  ThreadX Cortex-M7/AC5 Version 6.0.1 *";
+                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  ThreadX Cortex-M7/AC5 Version 6.1 *";
 #else
 #ifdef TX_MISRA_ENABLE
 extern  CHAR                    _tx_version_id[100];
