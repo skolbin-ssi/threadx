@@ -153,7 +153,17 @@ For generic code revision information, please refer to the readme_threadx_generi
 file, which is included in your distribution. The following details the revision
 information associated with this specific port of ThreadX:
 
-xx-xx-xxxx  Release 6.1.7 changes:
+01-31-2022  Release 6.1.10 changes:
+            tx_port.h                           Removed system state macro, and added 
+                                                missing interrupt control defines
+            tx_timer_interrupt.src              Added missing thread preemption logic
+
+10-15-2021  Release 6.1.9 changes:
+            tx_thread_context_restore.src       Removed unnecessary stack type placement 
+            tx_thread_schedule.src              Removed unnecessary stack type checking
+            tx_thread_stack_build.src           Removed unnecessary stack type placement 
+
+06-02-2021  Release 6.1.7 changes:
             readme_threadx.txt                  Updated instructions on how to use execution profile.
 
 04-02-2021  Release 6.1.6 changes:
@@ -162,7 +172,7 @@ xx-xx-xxxx  Release 6.1.7 changes:
 12-31-2020  Initial ThreadX release for the RXv2 using CC-RXX tools, version 6.1.3
 
 
-Copyright(c) 1996-2020 Microsoft Corporation
+Copyright(c) 1996-2022 Microsoft Corporation
 
 
 https://azure.com/rtos

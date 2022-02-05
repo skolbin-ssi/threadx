@@ -26,7 +26,7 @@
 /*  PORT SPECIFIC C INFORMATION                            RELEASE        */ 
 /*                                                                        */ 
 /*    tx_port.h                                            RXv3/IAR       */
-/*                                                           6.1.7        */
+/*                                                           6.1.10       */
 /*                                                                        */
 /*  AUTHOR                                                                */ 
 /*                                                                        */ 
@@ -48,6 +48,14 @@
 /*    DATE              NAME                      DESCRIPTION             */ 
 /*                                                                        */ 
 /*  06-02-2021     William E. Lamie         Initial Version 6.1.7         */
+/*  10-15-2021     William E. Lamie         Modified comment(s), and      */ 
+/*                                            added FPU support,          */ 
+/*                                            resulting in version 6.1.9  */ 
+/*  01-31-2022     William E. Lamie         Modified comment(s), removed  */
+/*                                            system state macro, and     */
+/*                                            added missing interrupt     */
+/*                                            control defines,            */
+/*                                            resulting in version 6.1.10 */
 /*                                                                        */ 
 /**************************************************************************/ 
 
@@ -79,6 +87,12 @@ typedef long                                    LONG;
 typedef unsigned long                           ULONG;
 typedef short                                   SHORT;
 typedef unsigned short                          USHORT;
+
+
+/* Define interrupt control options.  */
+
+#define TX_INT_DISABLE                          0x00000000
+#define TX_INT_ENABLE                           0x00010000
 
 
 /* Define the priority levels for ThreadX.  Legal values range
@@ -147,7 +161,7 @@ typedef unsigned short                          USHORT;
 
 #define TX_THREAD_EXTENSION_0          
 #define TX_THREAD_EXTENSION_1                  
-#define TX_THREAD_EXTENSION_2          
+#define TX_THREAD_EXTENSION_2                   ULONG   tx_thread_fpu_enable; /* FPU Register Save Flag. */
 #define TX_THREAD_EXTENSION_3          
 
 
@@ -241,14 +255,6 @@ static void _tx_thread_system_return_inline(void)
 #endif
 
 
-#ifndef TX_THREAD_GET_SYSTEM_STATE
-
-extern volatile ULONG  _tx_thread_system_state;
-#define TX_THREAD_GET_SYSTEM_STATE()        (_tx_thread_system_state | ((~__get_PSW_register()) & (1u << 17u)))
-#endif
-
-
-
 /* Define the interrupt lockout macros for each ThreadX object.  */
 
 #define TX_BLOCK_POOL_DISABLE                   TX_DISABLE
@@ -258,12 +264,17 @@ extern volatile ULONG  _tx_thread_system_state;
 #define TX_QUEUE_DISABLE                        TX_DISABLE
 #define TX_SEMAPHORE_DISABLE                    TX_DISABLE
 
+/* Define FPU enable functions. tx_thread_fpu_enable() must be called in the context of every thread
+ * that uses the FPU when double precision floating point instructions are enabled. */
+
+void    tx_thread_fpu_enable(void);
+void    tx_thread_fpu_disable(void);
 
 /* Define the version ID of ThreadX.  This may be utilized by the application.  */
 
 #ifdef TX_THREAD_INIT
 CHAR                            _tx_version_id[] = 
-                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  ThreadX RXv3/IAR Version 6.1.7 *";
+                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  ThreadX RXv3/IAR Version 6.1.10 *";
 #else
 extern  CHAR                    _tx_version_id[];
 #endif
