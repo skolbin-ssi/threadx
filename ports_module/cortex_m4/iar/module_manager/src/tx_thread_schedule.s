@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -28,6 +27,7 @@
     EXTERN  _tx_thread_preempt_disable
     EXTERN  _txm_module_manager_memory_fault_handler
     EXTERN  _txm_module_manager_memory_fault_info
+    EXTERN  txm_module_default_mpu_registers
 
     SECTION `.text`:CODE:NOROOT(2)
     THUMB
@@ -36,7 +36,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _tx_thread_schedule                               Cortex-M4/IAR     */
-/*                                                           6.1.11       */
+/*                                                           6.2.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Scott Larson, Microsoft Corporation                                 */
@@ -72,6 +72,12 @@
 /*  04-25-2022      Scott Larson            Optimized MPU configuration,  */
 /*                                            added BASEPRI support,      */
 /*                                            resulting in version 6.1.11 */
+/*  07-29-2022      Scott Larson            Removed the code path to skip */
+/*                                            MPU reloading, optional     */
+/*                                            default MPU settings,       */
+/*                                            resulting in version 6.1.12 */
+/*  10-31-2022      Scott Larson            Added low power support,      */
+/*                                            resulting in version 6.2.0  */
 /*                                                                        */
 /**************************************************************************/
 // VOID   _tx_thread_schedule(VOID)
@@ -320,11 +326,25 @@ __tx_ts_wait:
 #endif
     LDR     r1, [r2]                                // Pickup the next thread to execute pointer
     CBNZ    r1, __tx_ts_ready                       // If non-NULL, a new thread is ready!
+
+#ifdef TX_LOW_POWER
+    PUSH    {r0-r3}
+    BL      tx_low_power_enter                      // Possibly enter low power mode
+    POP     {r0-r3}
+#endif
+
 #ifdef TX_ENABLE_WFI
     DSB                                             // Ensure no outstanding memory transactions
     WFI                                             // Wait for interrupt
     ISB                                             // Ensure pipeline is flushed
 #endif
+
+#ifdef TX_LOW_POWER
+    PUSH    {r0-r3}
+    BL      tx_low_power_exit                       // Exit low power mode
+    POP     {r0-r3}
+#endif
+
 #ifdef TX_PORT_USE_BASEPRI
     MOV     r4, #0                                  // Disable BASEPRI masking (enable interrupts)
     MSR     BASEPRI, r4
@@ -385,26 +405,33 @@ __tx_ts_restore:
 
     LDR     r0, =0xE000ED94                         // Build MPU control reg address
     MOV     r3, #0                                  // Build disable value
+    CPSID   i                                       // Disable interrupts
     STR     r3, [r0]                                // Disable MPU
     LDR     r0, [r1, #0x90]                         // Pickup the module instance pointer
+#ifdef TXM_MODULE_MPU_DEFAULT
+    CBZ     r0, default_mpu                         // Is this thread owned by a module? No, default MPU setup
+#else
     CBZ     r0, skip_mpu_setup                      // Is this thread owned by a module? No, skip MPU setup
-    
+#endif
+
     LDR     r2, [r0, #0x8C]                         // Pickup MPU region 5 address
+#ifdef TXM_MODULE_MPU_DEFAULT
+    CBZ     r2, default_mpu                         // Is protection required for this module? No, default MPU setup
+#else
     CBZ     r2, skip_mpu_setup                      // Is protection required for this module? No, skip MPU setup
-    
-    // Is the MPU already set up for this module?
-    MOV     r1, #5                                  // Select region 5 from MPU
-    LDR     r3, =0xE000ED98                         // MPU_RNR register address
-    STR     r1, [r3]                                // Set region to 5
+#endif
     LDR     r1, =0xE000ED9C                         // MPU_RBAR register address
-    LDR     r3, [r1]                                // Load address stored in MPU region 5
-    BIC     r2, r2, #0x10                           // Clear VALID bit
-    CMP     r2, r3                                  // Is module already loaded?
-    BEQ     _tx_enable_mpu                          // Yes - skip MPU reconfiguration
 
     // Use alias registers to quickly load MPU
     ADD     r0, r0, #100                            // Build address of MPU register start in thread control block
 
+#ifdef TXM_MODULE_MPU_DEFAULT
+    B       config_mpu                              // configure MPU for module
+default_mpu:
+    LDR     r0, =txm_module_default_mpu_registers   // default MPU configuration
+#endif
+
+config_mpu:
     LDM     r0!,{r2-r9}                             // Load MPU regions 0-3
     STM     r1,{r2-r9}                              // Store MPU regions 0-3
     LDM     r0!,{r2-r9}                             // Load MPU regions 4-7
@@ -412,14 +439,17 @@ __tx_ts_restore:
 #ifdef TXM_MODULE_MANAGER_16_MPU
     LDM     r0!,{r2-r9}                             // Load MPU regions 8-11
     STM     r1,{r2-r9}                              // Store MPU regions 8-11
+    // Regions 12-15 are reserved for the user to define.
     LDM     r0,{r2-r9}                              // Load MPU regions 12-15
     STM     r1,{r2-r9}                              // Store MPU regions 12-15
 #endif
+
 _tx_enable_mpu:
     LDR     r0, =0xE000ED94                         // Build MPU control reg address
     MOV     r1, #5                                  // Build enable value with background region enabled
     STR     r1, [r0]                                // Enable MPU
 skip_mpu_setup:
+    CPSIE   i                                       // Enable interrupts
     LDMIA   r12!, {LR}                              // Pickup LR
 #ifdef __ARMVFP__
     TST     LR, #0x10                               // Determine if the VFP extended frame is present
@@ -574,14 +604,14 @@ _tx_no_lazy_clear:
 #endif
 
     /* Copy kernel hardware stack to module thread stack. */
-    LDM     r3!, {r1-r2}
-    STM     r0!, {r1-r2}
-    LDM     r3!, {r1-r2}
-    STM     r0!, {r1-r2}
-    LDM     r3!, {r1-r2}
-    STM     r0!, {r1-r2}
-    LDM     r3!, {r1-r2}
-    STM     r0!, {r1-r2}
+    LDM     r3!, {r1-r2}                            // Get r0, r1 from kernel stack
+    STM     r0!, {r1-r2}                            // Insert r0, r1 into thread stack
+    LDM     r3!, {r1-r2}                            // Get r2, r3 from kernel stack
+    STM     r0!, {r1-r2}                            // Insert r2, r3 into thread stack
+    LDM     r3!, {r1-r2}                            // Get r12, lr from kernel stack
+    STM     r0!, {r1-r2}                            // Insert r12, lr into thread stack
+    LDM     r3!, {r1-r2}                            // Get pc, xpsr from kernel stack
+    STM     r0!, {r1-r2}                            // Insert pc, xpsr into thread stack
     SUB     r0, r0, #32                             // Subtract 32 to get back to top of stack
     MSR     PSP, r0                                 // Set thread stack pointer
 

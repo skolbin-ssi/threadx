@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 /**************************************************************************/
 /*   Copyright (c) Cadence Design Systems, Inc.                           */
@@ -34,8 +33,8 @@
 
 /**************************************************************************/
 /**************************************************************************/
-/**                                                                       */ 
-/** ThreadX Component                                                     */ 
+/**                                                                       */
+/** ThreadX Component                                                     */
 /**                                                                       */
 /**   Thread                                                              */
 /**                                                                       */
@@ -48,21 +47,23 @@
 
     .text
 
-/**************************************************************************/ 
-/*                                                                        */ 
-/*  DESCRIPTION                                                           */ 
-/*                                                                        */ 
-/*    This function is target processor specific.  It is used to transfer */ 
-/*    control from a thread back to the system.  Only a minimal context   */ 
-/*    is saved since the compiler assumes temp registers are going to get */ 
-/*    slicked by a function call anyway.                                  */ 
-/*                                                                        */ 
-/*  RELEASE HISTORY                                                       */ 
-/*                                                                        */ 
-/*    DATE              NAME                      DESCRIPTION             */ 
-/*  12-31-2020     Cadence Design Systems   Initial Version 6.1.3         */
-/*                                                                        */ 
-/**************************************************************************/ 
+/**************************************************************************/
+/*                                                                        */
+/*  DESCRIPTION                                                           */
+/*                                                                        */
+/*    This function is target processor specific.  It is used to transfer */
+/*    control from a thread back to the system.  Only a minimal context   */
+/*    is saved since the compiler assumes temp registers are going to get */
+/*    slicked by a function call anyway.                                  */
+/*                                                                        */
+/*  RELEASE HISTORY                                                       */
+/*                                                                        */
+/*    DATE              NAME                      DESCRIPTION             */
+/*  12-31-2020      Cadence Design Systems  Initial Version 6.1.3         */
+/*  10-31-2022      Scott Larson            Updated EPK definitions,      */
+/*                                            resulting in version 6.2.0  */
+/*                                                                        */
+/**************************************************************************/
 
 //  VOID   _tx_thread_system_return(VOID)
 //  {
@@ -91,7 +92,7 @@ _tx_thread_system_return:
     #endif
 #endif
 
-#ifdef TX_ENABLE_EXECUTION_CHANGE_NOTIFY
+#if (defined(TX_ENABLE_EXECUTION_CHANGE_NOTIFY) || defined(TX_EXECUTION_PROFILE_ENABLE))
     /* Call the thread exit function to indicate the thread is no longer executing. */
 #ifdef __XTENSA_CALL0_ABI__
     call0   _tx_execution_thread_exit
@@ -144,7 +145,7 @@ _tx_thread_system_return:
     call0   _xt_coproc_savecs
 
     /* Clear CPENABLE and give up all co-procs. */
-    s16i    a5, a4, tx_thread_cp_state + XT_CPENABLE 
+    s16i    a5, a4, tx_thread_cp_state + XT_CPENABLE
     wsr     a5, CPENABLE                    /* disable all co-processors    */
 #endif
 
@@ -276,7 +277,7 @@ _tx_thread_system_return:
     wsr     a0, CPENABLE                /* disable all co-processors */
     #endif
 
-    /* 
+    /*
     Return via the scheduler.
     Scheduler returns eventually to this function's caller as if called by it.
     */

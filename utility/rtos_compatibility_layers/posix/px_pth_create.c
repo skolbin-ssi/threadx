@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -32,7 +31,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    pthread_create                                      PORTABLE C      */
-/*                                                           6.1.7        */
+/*                                                           6.2.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
@@ -98,7 +97,10 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-02-2021     William E. Lamie         Initial Version 6.1.7         */
+/*  06-02-2021      William E. Lamie        Initial Version 6.1.7         */
+/*  10-31-2022      Scott Larson            Add 64-bit support,           */
+/*                                            remove double parenthesis,  */
+/*                                            resulting in version 6.2.0  */
 /*                                                                        */
 /**************************************************************************/
 INT pthread_create (pthread_t *thread, pthread_attr_t *attr,
@@ -211,7 +213,7 @@ INT               status,retval;
         status = posix_memory_allocate( pthread_ptr->stack_size, &(pthread_ptr->stack_address));
 
         /* problem allocating stack space */
-        if ((status == ERROR))
+        if (status == ERROR)
         {
           /* Configuration/resource error.  */ 
           return(EAGAIN); 
@@ -227,17 +229,19 @@ INT               status,retval;
     
    /* Now actually create and start the thread.  */
    /* convert Posix priorities to Threadx priority */
-    retval += tx_thread_create( thread_ptr,
+    retval += tx_thread_create(thread_ptr,
                                "pthr",
                                posix_thread_wrapper,
-                               (ULONG)pthread_ptr,
+                               (ULONG)(ALIGN_TYPE)pthread_ptr,
                                pthread_ptr->stack_address,
                                pthread_ptr->stack_size,
                                (TX_LOWEST_PRIORITY - pthread_ptr->current_priority + 1),
                                (TX_LOWEST_PRIORITY - pthread_ptr->threshold + 1),
                                pthread_ptr->time_slice,
                                TX_AUTO_START); 
-
+    
+    TX_THREAD_EXTENSION_PTR_SET(thread_ptr, pthread_ptr)
+    
     /* See if ThreadX encountered an error */ 
     if (retval)
     {

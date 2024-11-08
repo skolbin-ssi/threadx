@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -32,7 +31,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    mq_receive                                          PORTABLE C      */
-/*                                                           6.1.7        */
+/*                                                           6.2.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
@@ -71,7 +70,9 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-02-2021     William E. Lamie         Initial Version 6.1.7         */
+/*  06-02-2021      William E. Lamie        Initial Version 6.1.7         */
+/*  10-31-2022      Scott Larson            Add 64-bit support,           */
+/*                                            resulting in version 6.2.0  */
 /*                                                                        */
 /**************************************************************************/
 ssize_t mq_receive( mqd_t mqdes, VOID * pMsg, size_t msgLen, ULONG *pMsgPrio)
@@ -141,7 +142,7 @@ VOID                * message_source;
     
     /* Try to get a message from the message queue.  */
     /* Create a temporary buffer to get message pointer and message length.  */
-    temp1 = posix_memory_allocate((sizeof(ULONG)) * 4 , (VOID**)&msgbuf1);
+    temp1 = posix_memory_allocate((sizeof(ULONG)) * TX_POSIX_MESSAGE_SIZE, (VOID**)&msgbuf1);
     if(temp1 != TX_SUCCESS )
     {
         /* Return generic error.  */
@@ -212,10 +213,17 @@ VOID                * message_source;
     my_ptr = ( ULONG *)msgbuf1;
 
     /* Retrieve Message pointer, message Length and message priority.  */
+#ifdef TX_64_BIT
+    this_ptr          = (CHAR *)((((ALIGN_TYPE)my_ptr[0]) << 32) | my_ptr[1]);
+    length_of_message =  my_ptr[2];
+    priority_of_message = my_ptr[3];
+#else
     this_ptr          =   (CHAR *)(*my_ptr);
-    message_source    = (VOID *)this_ptr;
     length_of_message =    *(++my_ptr);
     priority_of_message = *(++my_ptr);
+    
+#endif
+    message_source    = (VOID *)this_ptr;
     
     /* Copy message into supplied buffer.  */
     msgbuf2 = (UCHAR *)pMsg;

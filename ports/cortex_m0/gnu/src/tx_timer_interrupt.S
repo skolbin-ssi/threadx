@@ -1,13 +1,12 @@
-@/**************************************************************************/
-@/*                                                                        */
-@/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-@/*                                                                        */
-@/*       This software is licensed under the Microsoft Software License   */
-@/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-@/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-@/*       and in the root directory of this software.                      */
-@/*                                                                        */
-@/**************************************************************************/
+@/***************************************************************************
+@ * Copyright (c) 2024 Microsoft Corporation 
+@ * 
+@ * This program and the accompanying materials are made available under the
+@ * terms of the MIT License which is available at
+@ * https://opensource.org/licenses/MIT.
+@ * 
+@ * SPDX-License-Identifier: MIT
+@ **************************************************************************/
 @
 @
 @/**************************************************************************/
@@ -20,6 +19,9 @@
 @/**************************************************************************/
 @/**************************************************************************/
 @
+#ifdef TX_INCLUDE_USER_DEFINE_FILE
+#include "tx_user.h"
+#endif
 @
     .global _tx_timer_time_slice
     .global _tx_timer_system_clock
@@ -40,7 +42,7 @@
 @/*  FUNCTION                                               RELEASE        */
 @/*                                                                        */
 @/*    _tx_timer_interrupt                               Cortex-M0/GNU     */
-@/*                                                           6.1          */
+@/*                                                           6.2.1        */
 @/*  AUTHOR                                                                */
 @/*                                                                        */
 @/*    William E. Lamie, Microsoft Corporation                             */
@@ -76,7 +78,9 @@
 @/*                                                                        */
 @/*  05-19-2020     William E. Lamie         Initial Version 6.0           */
 @/*  09-30-2020     William E. Lamie         Modified comment(s),          */
-@/*                                            resulting in version 6.1    */        
+@/*                                            resulting in version 6.1    */
+@/*  03-08-2023      Scott Larson            Include tx_user.h,            */
+@/*                                            resulting in version 6.2.1  */
 @/*                                                                        */
 @/**************************************************************************/
 @VOID   _tx_timer_interrupt(VOID)

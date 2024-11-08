@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -165,7 +164,7 @@ INT     index;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _tx_thread_secure_mode_stack_allocate             Cortex-M33/IAR    */
-/*                                                           6.1.10       */
+/*                                                           6.1.11a      */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Scott Larson, Microsoft Corporation                                 */
@@ -209,11 +208,15 @@ INT     index;
 /*  01-31-2022      Himanshu Gupta          Modified comments(s), updated */
 /*                                            secure stack allocation,    */
 /*                                            resulting in version 6.1.10 */
+/*  05-02-2022      Scott Larson            Modified comment(s), added    */
+/*                                            TX_INTERRUPT_SAVE_AREA,     */
+/*                                            resulting in version 6.1.11a*/
 /*                                                                        */
 /**************************************************************************/
 __attribute__((cmse_nonsecure_entry))
 UINT    _tx_thread_secure_mode_stack_allocate(TX_THREAD *thread_ptr, ULONG stack_size)
 {
+TX_INTERRUPT_SAVE_AREA
 UINT    status;
 TX_THREAD_SECURE_STACK_INFO *info_ptr;
 UCHAR   *stack_mem;
@@ -314,7 +317,7 @@ INT     secure_context_index;
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _tx_thread_secure_mode_stack_free                 Cortex-M33/IAR    */
-/*                                                           6.1.10       */
+/*                                                           6.1.11a      */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Scott Larson, Microsoft Corporation                                 */
@@ -352,11 +355,15 @@ INT     secure_context_index;
 /*  01-31-2022      Himanshu Gupta          Modified comments(s), updated */
 /*                                            secure stack allocation,    */
 /*                                            resulting in version 6.1.10 */
+/*  05-02-2022      Scott Larson            Modified comment(s), added    */
+/*                                            TX_INTERRUPT_SAVE_AREA,     */
+/*                                            resulting in version 6.1.11a*/
 /*                                                                        */
 /**************************************************************************/
 __attribute__((cmse_nonsecure_entry))
 UINT    _tx_thread_secure_mode_stack_free(TX_THREAD *thread_ptr)
 {
+TX_INTERRUPT_SAVE_AREA
 UINT    status;
 TX_THREAD_SECURE_STACK_INFO *info_ptr;
 INT     secure_context_index;

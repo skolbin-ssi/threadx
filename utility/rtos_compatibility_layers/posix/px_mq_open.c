@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -32,7 +31,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    mq_open                                             PORTABLE C      */
-/*                                                           6.1.7        */
+/*                                                           6.2.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
@@ -68,7 +67,9 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-02-2021     William E. Lamie         Initial Version 6.1.7         */
+/*  06-02-2021      William E. Lamie        Initial Version 6.1.7         */
+/*  10-31-2022      Scott Larson            Update comparison with NULL,  */
+/*                                            resulting in version 6.2.0  */
 /*                                                                        */
 /**************************************************************************/
 mqd_t  mq_open(const CHAR * mqName, ULONG oflags,...)
@@ -115,7 +116,7 @@ ULONG                temp1;
              }
 
              /* Check if name is exist. NULL if successful.  */
-             if(posix_queue = posix_find_queue(mqName))
+             if((posix_queue = posix_find_queue(mqName)) != NULL)
              {
                  if(posix_queue->unlink_flag == TX_TRUE)
                  {
@@ -172,7 +173,7 @@ ULONG                temp1;
         case O_RDWR:
         case O_NONBLOCK:
             /* Check if name is exist. NULL if successful.  */
-            if(posix_queue = posix_find_queue(mqName))
+            if((posix_queue = posix_find_queue(mqName)) != NULL)
             {
                 if(posix_queue->unlink_flag == TX_TRUE)
                 {

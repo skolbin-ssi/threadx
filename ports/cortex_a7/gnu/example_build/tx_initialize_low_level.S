@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -19,8 +18,16 @@
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
+#ifdef TX_INCLUDE_USER_DEFINE_FILE
+#include "tx_user.h"
+#endif
 
+    .syntax unified
+#if defined(THUMB_MODE)
+    .thumb
+#else
     .arm
+#endif
 
 SVC_MODE        =       0xD3                    // Disable IRQ/FIQ SVC mode
 IRQ_MODE        =       0xD2                    // Disable IRQ/FIQ IRQ mode
@@ -38,24 +45,13 @@ SYS_STACK_SIZE  =       1024                    // System stack size
     .global     _end
     .global     _sp
     .global     _stack_bottom
-
-
-/* Define the 16-bit Thumb mode veneer for _tx_initialize_low_level for
-   applications calling this function from to 16-bit Thumb mode.  */
-
-    .text
-    .align 2
-    .thumb
-    .global $_tx_initialize_low_level
-    .type   $_tx_initialize_low_level,function
-$_tx_initialize_low_level:
-     BX        pc                               // Switch to 32-bit mode
-     NOP                                        //
-    .arm
-     STMFD     sp!, {lr}                        // Save return address
-     BL        _tx_initialize_low_level         // Call _tx_initialize_low_level function
-     LDMFD     sp!, {lr}                        // Recover saved return address
-     BX        lr                               // Return to 16-bit caller
+    .global     __vectors
+    .global     disableHighVecs
+    .global     enableGIC
+    .global     enableGICProcessorInterface
+    .global     enableCaches
+    .global     init_private_timer
+    .global     start_private_timer
 
     .text
     .align 2
@@ -64,7 +60,7 @@ $_tx_initialize_low_level:
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _tx_initialize_low_level                             ARMv7-A        */
-/*                                                           6.1.11       */
+/*                                                           6.3.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
@@ -100,8 +96,14 @@ $_tx_initialize_low_level:
 /*  09-30-2020     William E. Lamie         Initial Version 6.1           */
 /*  04-25-2022     Zhen Kong                Updated comments,             */
 /*                                            resulting in version 6.1.11 */
+/*  10-31-2023     Tiejun Zhou              Modified comment(s), added    */
+/*                                            #include tx_user.h,         */
+/*                                            resulting in version 6.3.0  */
 /*                                                                        */
 /**************************************************************************/
+#if defined(THUMB_MODE)
+    .thumb_func
+#endif
     .global _tx_initialize_low_level
     .type   _tx_initialize_low_level,function
 _tx_initialize_low_level:
@@ -154,34 +156,85 @@ _stack_error_loop:
     ADD     r1, r1, #8                          // Increment to next free word
     STR     r1, [r2]                            // Save first free memory address
 
-#ifdef __THUMB_INTERWORK
+    PUSH    {lr}
+
+    /* Setup the vector table.  */
+    LDR     r0, =__vectors                      // Get address of vector table
+    MCR     p15, 0, r0, c12, c0, 0              // Write vector table address to CP15
+    BL      disableHighVecs                     // Disable high vectors
+
+    //
+    // GIC Init
+    // ---------
+    BL      enableGIC
+    BL      enableGICProcessorInterface
+
+    //
+    // Enable Private Timer for periodic IRQ
+    // --------------------------------------
+    MOV     r0, #0x1F
+    BL      setPriorityMask               // Set priority mask (local)
+
+    // Enable the Private Timer Interrupt Source
+    MOV     r0, #29
+    MOV     r1, #0
+    BL      enableIntID
+
+    // Set the priority
+    MOV     r0, #29
+    MOV     r1, #0
+    BL      setIntPriority
+
+    // Configure Timer
+    MOV     r0, #0xF0000
+    MOV     r1, #0x0
+    BL      init_private_timer
+    BL      start_private_timer
+
+    POP    {lr}
+
     BX      lr                                  // Return to caller
-#else
-    MOV     pc, lr                              // Return to caller
-#endif
 
 /* Define shells for each of the interrupt vectors.  */
 
+#if defined(THUMB_MODE)
+    .thumb_func
+#endif
     .global __tx_undefined
 __tx_undefined:
     B       __tx_undefined                      // Undefined handler
 
+#if defined(THUMB_MODE)
+    .thumb_func
+#endif
     .global __tx_swi_interrupt
 __tx_swi_interrupt:
     B       __tx_swi_interrupt                  // Software interrupt handler
 
+#if defined(THUMB_MODE)
+    .thumb_func
+#endif
     .global __tx_prefetch_handler
 __tx_prefetch_handler:
     B       __tx_prefetch_handler               // Prefetch exception handler
 
+#if defined(THUMB_MODE)
+    .thumb_func
+#endif
     .global __tx_abort_handler
 __tx_abort_handler:
     B       __tx_abort_handler                  // Abort exception handler
 
+#if defined(THUMB_MODE)
+    .thumb_func
+#endif
     .global __tx_reserved_handler
 __tx_reserved_handler:
     B       __tx_reserved_handler               // Reserved exception handler
 
+#if defined(THUMB_MODE)
+    .thumb_func
+#endif
     .global __tx_irq_handler
     .global __tx_irq_processing_return
 __tx_irq_handler:
@@ -196,16 +249,18 @@ __tx_irq_processing_return:
        if nested IRQ interrupts are desired.  Interrupts may be re-enabled over
        small code sequences where lr is saved before enabling interrupts and
        restored after interrupts are again disabled.  */
+    
+    PUSH    {r4, r5}            // Save some preserved registers (r5 is saved just for 8-byte alignment)
+    BL      readIntAck
+    MOV     r4, r0
 
-    /* Interrupt nesting is allowed after calling _tx_thread_irq_nesting_start
-       from IRQ mode with interrupts disabled.  This routine switches to the
-       system mode and returns with IRQ interrupts enabled.
+    CMP     r0, #29             // If not Private Timer interrupt (ID 29), by pass
+    BNE     by_pass_timer_interrupt
 
-       NOTE:  It is very important to ensure all IRQ interrupts are cleared
-       prior to enabling nested IRQ interrupts.  */
-#ifdef TX_ENABLE_IRQ_NESTING
-    BL      _tx_thread_irq_nesting_start
-#endif
+    MOV     r0, #0xF0000
+    MOV     r1, #0x0
+    BL      init_private_timer
+    DSB
 
     /* For debug purpose, execute the timer interrupt processing here.  In
        a real system, some kind of status indication would have to be checked
@@ -213,13 +268,10 @@ __tx_irq_processing_return:
 
     BL     _tx_timer_interrupt                  // Timer interrupt handler
 
-
-    /* If interrupt nesting was started earlier, the end of interrupt nesting
-       service must be called before returning to _tx_thread_context_restore.
-       This routine returns in processing in IRQ mode with interrupts disabled.  */
-#ifdef TX_ENABLE_IRQ_NESTING
-    BL      _tx_thread_irq_nesting_end
-#endif
+by_pass_timer_interrupt:
+    MOV     r0, r4
+    BL      writeEOI
+    POP     {r4, r5}                            // Recover preserved registers
 
     /* Jump to context restore to restore system context.  */
     B       _tx_thread_context_restore
@@ -256,6 +308,9 @@ __tx_irq_processing_return:
 
 
 #ifdef TX_ENABLE_FIQ_SUPPORT
+#if defined(THUMB_MODE)
+    .thumb_func
+#endif
     .global  __tx_fiq_handler
     .global  __tx_fiq_processing_return
 __tx_fiq_handler:
@@ -290,6 +345,9 @@ __tx_fiq_processing_return:
 
 
 #else
+#if defined(THUMB_MODE)
+    .thumb_func
+#endif
     .global  __tx_fiq_handler
 __tx_fiq_handler:
     B       __tx_fiq_handler                    // FIQ interrupt handler

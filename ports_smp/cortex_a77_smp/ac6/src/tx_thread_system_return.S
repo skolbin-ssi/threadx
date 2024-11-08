@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -19,7 +18,9 @@
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
-
+#ifdef TX_INCLUDE_USER_DEFINE_FILE
+#include "tx_user.h"
+#endif
 
     .text
     .align 3
@@ -28,7 +29,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _tx_thread_system_return                           ARMv8-A-SMP      */
-/*                                                           6.1.10       */
+/*                                                           6.3.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
@@ -64,6 +65,10 @@
 /*  01-31-2022     Andres Mlinar            Updated comments,             */
 /*                                             added ARMv8.2-A support,   */
 /*                                            resulting in version 6.1.10 */
+/*  10-31-2023     Tiejun Zhou              Modified comment(s), added    */
+/*                                            #include tx_user.h, added   */
+/*                                            memory barrier,             */
+/*                                            resulting in version 6.3.0  */
 /*                                                                        */
 /**************************************************************************/
 // VOID   _tx_thread_system_return(VOID)
@@ -168,6 +173,7 @@ __tx_thread_dont_save_ts:
 
     /* Set ready bit in thread control block.  */
 
+    DMB     ISH                                 // Ensure that accesses to shared resource have completed
     MOV     x3, #1                              // Build ready value
     STR     w3, [x6, #260]                      // Make the thread ready
     DMB     ISH                                 //

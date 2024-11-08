@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -26,7 +25,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _tx_thread_secure_stack_initialize                Cortex-M33/AC6    */
-/*                                                           6.1.8        */
+/*                                                           6.1.12       */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Scott Larson, Microsoft Corporation                                 */
@@ -49,13 +48,17 @@
 /*                                                                        */
 /*  CALLED BY                                                             */
 /*                                                                        */
-/*    TX_INITIALIZE_KERNEL_ENTER_EXTENSION                                */
+/*    TX_PORT_SPECIFIC_PRE_INITIALIZATION                                 */
 /*                                                                        */
 /*  RELEASE HISTORY                                                       */
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  08-02-2021      Scott Larson            Initial Version 6.1.8         */
+/*  06-02-2021      Scott Larson            Initial Version 6.1.7         */
+/*  07-29-2022      Scott Larson            Modified comments and changed */
+/*                                            secure stack initialization */
+/*                                            macro to port-specific,     */
+/*                                            resulting in version 6.1.12 */
 /*                                                                        */
 /**************************************************************************/
 // VOID   _tx_thread_secure_stack_initialize(VOID)

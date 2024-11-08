@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 /**************************************************************************/
 /**************************************************************************/
@@ -22,7 +21,10 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  09-30-2020     William E. Lamie         Initial Version 6.1           */
+/*  09-30-2020      William E. Lamie        Initial Version 6.1           */
+/*  10-31-2022      Scott Larson            Change configSTACK_DEPTH_TYPE */
+/*                                           to 32 bit instead of 16 bit, */
+/*                                            resulting in version 6.2.0  */
 /*                                                                        */
 /**************************************************************************/
 
@@ -52,7 +54,7 @@
 /* #define configUSE_PORT_OPTIMISED_TASK_SELECTION  0 */
 
 /* #define configMESSAGE_BUFFER_LENGTH_TYPE         size_t */
-#define configSTACK_DEPTH_TYPE                     uint16_t
+#define configSTACK_DEPTH_TYPE                     uint32_t
 
 /* #define configUSE_CO_ROUTINES                    0   */
 /* #define configMAX_CO_ROUTINE_PRIORITIES          (2) */

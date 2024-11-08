@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -38,7 +37,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _tx_thread_system_suspend                          PORTABLE SMP     */
-/*                                                           6.1.11       */
+/*                                                           6.3.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
@@ -91,6 +90,8 @@
 /*  04-25-2022      Scott Larson            Modified comments and fixed   */
 /*                                            loop to find next thread,   */
 /*                                            resulting in version 6.1.11 */
+/*  10-31-2023      Tiejun Zhou             Fixed MISRA2012 rule 10.4_a,  */
+/*                                            resulting in version 6.3.0  */
 /*                                                                        */
 /**************************************************************************/
 VOID  _tx_thread_system_suspend(TX_THREAD *thread_ptr)
@@ -671,7 +672,7 @@ UINT                        processing_complete;
                     complex_path_possible =  possible_cores & available_cores;
 
                     /* Check if we need to loop to find the next highest priority thread.  */
-                    if (next_priority == TX_MAX_PRIORITIES)
+                    if (next_priority == (ULONG)TX_MAX_PRIORITIES)
                     {
                         loop_finished = TX_TRUE;
                     }

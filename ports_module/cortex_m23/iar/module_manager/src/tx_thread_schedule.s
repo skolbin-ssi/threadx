@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -42,7 +41,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _tx_thread_schedule                               Cortex-M23/IAR    */
-/*                                                           6.1.11       */
+/*                                                           6.2.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Scott Larson, Microsoft Corporation                                 */
@@ -77,6 +76,11 @@
 /*  04-02-2021      Scott Larson            Initial Version 6.1.6         */
 /*  04-25-2022      Scott Larson            Optimized MPU configuration,  */
 /*                                            resulting in version 6.1.11 */
+/*  07-29-2022      Scott Larson            Removed the code path to skip */
+/*                                            MPU reloading,              */
+/*                                            resulting in version 6.1.12 */
+/*  10-31-2022      Scott Larson            Added low power support,      */
+/*                                            resulting in version 6.2.0  */
 /*                                                                        */
 /**************************************************************************/
 // VOID   _tx_thread_schedule(VOID)
@@ -300,11 +304,25 @@ __tx_ts_wait:
     CPSID   i                                       // Disable interrupts
     LDR     r1, [r2]                                // Pickup the next thread to execute pointer
     CBNZ    r1, __tx_ts_ready                       // If non-NULL, a new thread is ready!
+
+#ifdef TX_LOW_POWER
+    PUSH    {r0-r3}
+    BL      tx_low_power_enter                      // Possibly enter low power mode
+    POP     {r0-r3}
+#endif
+
 #ifdef TX_ENABLE_WFI
     DSB                                             // Ensure no outstanding memory transactions
     WFI                                             // Wait for interrupt
     ISB                                             // Ensure pipeline is flushed
 #endif
+
+#ifdef TX_LOW_POWER
+    PUSH    {r0-r3}
+    BL      tx_low_power_exit                       // Exit low power mode
+    POP     {r0-r3}
+#endif
+
     CPSIE   i                                       // Enable interrupts
     B       __tx_ts_wait                            // Loop to continue waiting
 
@@ -375,15 +393,6 @@ _skip_secure_restore:
     MOVS    r2, #0x74                               // Index of MPU data region
     LDR     r2, [r0, r2]                            // Pickup MPU data region address
     CBZ     r2, skip_mpu_setup                      // Is protection required for this module? No, skip MPU setup
-
-    // Is the MPU already set up for this module?
-    MOVS    r1, #2                                  // Select MPU region 2
-    LDR     r3, =0xE000ED98                         // MPU_RNR register address
-    STR     r1, [r3]                                // Set region to 2
-    LDR     r1, =0xE000ED9C                         // MPU_RBAR register address
-    LDR     r3, [r1]                                // Load address stored in MPU region 2
-    CMP     r2, r3                                  // Is module already loaded?
-    BEQ     _tx_enable_mpu                          // Yes - skip MPU reconfiguration
 
     // Initialize loop to configure MPU registers
     MOVS    r3, #0x64                               // Index of MPU register settings in thread control block

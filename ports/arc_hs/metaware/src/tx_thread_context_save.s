@@ -1,13 +1,12 @@
-;/**************************************************************************/
-;/*                                                                        */
-;/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-;/*                                                                        */
-;/*       This software is licensed under the Microsoft Software License   */
-;/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-;/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-;/*       and in the root directory of this software.                      */
-;/*                                                                        */
-;/**************************************************************************/
+;/***************************************************************************
+; * Copyright (c) 2024 Microsoft Corporation 
+; * 
+; * This program and the accompanying materials are made available under the
+; * terms of the MIT License which is available at
+; * https://opensource.org/licenses/MIT.
+; * 
+; * SPDX-License-Identifier: MIT
+; **************************************************************************/
 
 ;/**************************************************************************/
 ;/**************************************************************************/
@@ -18,6 +17,9 @@
 ;/**                                                                       */
 ;/**************************************************************************/
 ;/**************************************************************************/
+#ifdef TX_INCLUDE_USER_DEFINE_FILE
+#include "tx_user.h"
+#endif
 
     .equ    BTA, 0x412
 
@@ -26,7 +28,7 @@
 ;/*  FUNCTION                                               RELEASE        */
 ;/*                                                                        */
 ;/*    _tx_thread_context_save                           ARC_HS/MetaWare   */
-;/*                                                           6.1.9        */
+;/*                                                           6.2.1        */
 ;/*  AUTHOR                                                                */
 ;/*                                                                        */
 ;/*    William E. Lamie, Microsoft Corporation                             */
@@ -61,6 +63,9 @@
 ;/*  10-15-2021     Andres Mlinar            Modified comment(s), and      */
 ;/*                                            r25/r30 are caller saved,   */
 ;/*                                            resulting in version 6.1.9  */
+;/*  03-08-2023     Cindy Deng               Modified comment(s), added    */
+;/*                                            #include tx_user.h,         */
+;/*                                            resulting in version 6.2.1  */
 ;/*                                                                        */
 ;/**************************************************************************/
 ;VOID   _tx_thread_context_save(VOID)

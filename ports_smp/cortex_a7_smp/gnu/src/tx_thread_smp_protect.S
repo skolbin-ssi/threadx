@@ -1,13 +1,12 @@
-@/**************************************************************************/
-@/*                                                                        */
-@/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-@/*                                                                        */
-@/*       This software is licensed under the Microsoft Software License   */
-@/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-@/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-@/*       and in the root directory of this software.                      */
-@/*                                                                        */
-@/**************************************************************************/
+@/***************************************************************************
+@ * Copyright (c) 2024 Microsoft Corporation 
+@ * 
+@ * This program and the accompanying materials are made available under the
+@ * terms of the MIT License which is available at
+@ * https://opensource.org/licenses/MIT.
+@ * 
+@ * SPDX-License-Identifier: MIT
+@ **************************************************************************/
 @
 @
 @/**************************************************************************/
@@ -50,7 +49,7 @@
 @/*  FUNCTION                                               RELEASE        */ 
 @/*                                                                        */ 
 @/*    _tx_thread_smp_protect                          SMP/Cortex-A7/GNU   */ 
-@/*                                                            6.1         */
+@/*                                                            6.1.12      */
 @/*  AUTHOR                                                                */
 @/*                                                                        */
 @/*    William E. Lamie, Microsoft Corporation                             */
@@ -81,7 +80,9 @@
 @/*                                                                        */ 
 @/*    DATE              NAME                      DESCRIPTION             */
 @/*                                                                        */
-@/*  09-30-2020     William E. Lamie         Initial Version 6.1           */
+@/*  09-30-2020      William E. Lamie        Initial Version 6.1           */
+@/*  07-29-2022      Scott Larson            Fixed preprocessor statement, */
+@/*                                            resulting in version 6.1.12 */
 @/*                                                                        */
 @/**************************************************************************/
     .global _tx_thread_smp_protect
@@ -98,7 +99,7 @@ _tx_thread_smp_protect:
 
 #ifdef TX_ENABLE_FIQ_SUPPORT
     CPSID   if                                  @ Disable IRQ and FIQ interrupts
-    ELSE
+#else
     CPSID   i                                   @ Disable IRQ interrupts
 #endif
 @
@@ -249,7 +250,7 @@ _try_to_get_lock:
 @
 #ifdef TX_ENABLE_FIQ_SUPPORT
     CPSID   if                                  @ Disable IRQ and FIQ interrupts
-    ELSE
+#else
     CPSID   i                                   @ Disable IRQ interrupts
 #endif
 

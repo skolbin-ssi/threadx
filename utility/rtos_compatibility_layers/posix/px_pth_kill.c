@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -33,7 +32,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    pthread_kill                                        PORTABLE C      */
-/*                                                           6.1.7        */
+/*                                                           6.2.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
@@ -73,11 +72,13 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-02-2021     William E. Lamie         Initial Version 6.1.7         */
+/*  06-02-2021      William E. Lamie        Initial Version 6.1.7         */
+/*  10-31-2022      Scott Larson            Remove double parenthesis,    */
+/*                                            update argument type,       */
+/*                                            resulting in version 6.2.0  */
 /*                                                                        */
 /**************************************************************************/
-
-int   pthread_kill(ULONG thread_id, int sig)
+int   pthread_kill(ALIGN_TYPE thread_id, int sig)
 {
 
 TX_INTERRUPT_SAVE_AREA
@@ -197,7 +198,7 @@ UINT        retval;
     status =  posix_memory_allocate(new_signal_thread -> stack_size, &new_signal_thread -> stack_address);
 
     /* problem allocating stack space */
-    if ((status == ERROR))
+    if (status == ERROR)
     {
         
         /* Mark the previously allocated control block as available.  */

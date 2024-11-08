@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 /**************************************************************************/
 /**************************************************************************/
@@ -24,7 +23,7 @@
 /*  EKP DEFINITIONS                                        RELEASE        */
 /*                                                                        */
 /*    px_int.h                                            PORTABLE C      */
-/*                                                           6.1.7        */
+/*                                                           6.2.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
@@ -39,7 +38,9 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  06-02-2021     William E. Lamie         Initial Version 6.1.7         */
+/*  06-02-2021      William E. Lamie        Initial Version 6.1.7         */
+/*  10-31-2022      Scott Larson            Remove unneeded values,       */
+/*                                            resulting in version 6.2.0  */
 /*                                                                        */
 /**************************************************************************/
 
@@ -52,14 +53,9 @@
 #define  TX_INITIALIZE_IN_PROGRESS      0xF0F0F0F0UL
 #define  TX_INITIALIZE_ALMOST_DONE      0xF0F0F0F1UL
 
-/* Include necessary definition for memory related routines(from tx_byt.c). */
-#define  TX_BYTE_BLOCK_FREE             0xFFFFEEEEUL
-#define  TX_BYTE_BLOCK_ALLOC            0xAAAAAAAAUL
-#define  TX_BYTE_POOL_ID                0x42595445UL
-
 /* Threadx min and max priority */
 #define TX_HIGHEST_PRIORITY                 1
-#define TX_LOWEST_PRIORITY                 31
+#define TX_LOWEST_PRIORITY                  31
 
 #define PX_HIGHEST_PRIORITY                 31
 #define PX_LOWEST_PRIORITY                  1
@@ -194,7 +190,7 @@ VOID                  posix_thread_wrapper(ULONG pthr_ptr);
 
 VOID                  set_default_pthread_attr(pthread_attr_t *attr);
 
-VOID                  set_default_mutexattr(pthread_mutexattr_t *attr);                           
+VOID                  set_default_mutexattr(pthread_mutexattr_t *attr);
 
 INT                   posix_allocate_pthread_t(POSIX_TCB **ptcb_ptr);
 

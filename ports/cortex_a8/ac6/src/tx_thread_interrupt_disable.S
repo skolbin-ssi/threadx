@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -19,23 +18,16 @@
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
+#ifdef TX_INCLUDE_USER_DEFINE_FILE
+#include "tx_user.h"
+#endif
 
-/* Define the 16-bit Thumb mode veneer for _tx_thread_interrupt_disable for
-   applications calling this function from to 16-bit Thumb mode.  */
-
-    .text
-    .align 2
-    .global $_tx_thread_interrupt_disable
-$_tx_thread_interrupt_disable:
-        .thumb
-     BX        pc                               // Switch to 32-bit mode
-     NOP                                        //
+    .syntax unified
+#if defined(THUMB_MODE)
+    .thumb
+#else
     .arm
-     STMFD     sp!, {lr}                        // Save return address
-     BL        _tx_thread_interrupt_disable     // Call _tx_thread_interrupt_disable function
-     LDMFD     sp!, {lr}                        // Recover saved return address
-     BX        lr                               // Return to 16-bit caller
-
+#endif
 
     .text
     .align 2
@@ -44,7 +36,7 @@ $_tx_thread_interrupt_disable:
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _tx_thread_interrupt_disable                         ARMv7-A        */
-/*                                                           6.1.11       */
+/*                                                           6.4.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
@@ -76,8 +68,17 @@ $_tx_thread_interrupt_disable:
 /*  09-30-2020     William E. Lamie         Initial Version 6.1           */
 /*  04-25-2022     Zhen Kong                Updated comments,             */
 /*                                            resulting in version 6.1.11 */
+/*  10-31-2023     Tiejun Zhou              Modified comment(s), added    */
+/*                                            #include tx_user.h,         */
+/*                                            resulting in version 6.3.0  */
+/*  12-31-2023     Yajun Xia                Modified comment(s),          */
+/*                                            Added thumb mode support,   */
+/*                                            resulting in version 6.4.0  */
 /*                                                                        */
 /**************************************************************************/
+#if defined(THUMB_MODE)
+    .thumb_func
+#endif
     .global _tx_thread_interrupt_disable
     .type   _tx_thread_interrupt_disable,function
 _tx_thread_interrupt_disable:
@@ -94,8 +95,4 @@ _tx_thread_interrupt_disable:
     CPSID   i                                   // Disable IRQ
 #endif
 
-#ifdef __THUMB_INTERWORK
     BX      lr                                  // Return to caller
-#else
-    MOV     pc, lr                              // Return to caller
-#endif

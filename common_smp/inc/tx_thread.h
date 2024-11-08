@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -26,7 +25,7 @@
 /*  COMPONENT DEFINITION                                   RELEASE        */
 /*                                                                        */
 /*    tx_thread.h                                        PORTABLE SMP     */
-/*                                                           6.1          */
+/*                                                           6.3.0        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    William E. Lamie, Microsoft Corporation                             */
@@ -42,6 +41,8 @@
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
 /*  09-30-2020     William E. Lamie         Initial Version 6.1           */
+/*  10-31-2023     Tiejun Zhou              Fixed MISRA2012 rule 8.3,     */
+/*                                            resulting in version 6.3.0  */
 /*                                                                        */
 /**************************************************************************/
 
@@ -1349,7 +1350,7 @@ TX_THREAD       *thread_remap_list[TX_THREAD_SMP_MAX_CORES];
 }
 
 
-static INLINE_DECLARE ULONG  _tx_thread_smp_preemptable_threads_get(UINT priority, TX_THREAD *possible_preemption_list[])
+static INLINE_DECLARE ULONG  _tx_thread_smp_preemptable_threads_get(UINT priority, TX_THREAD *possible_preemption_list[TX_THREAD_SMP_MAX_CORES])
 {
 
 UINT        i, j, k;
@@ -1668,7 +1669,7 @@ ULONG  _tx_thread_smp_available_cores_get(void);
 ULONG  _tx_thread_smp_possible_cores_get(void);
 UINT   _tx_thread_smp_lowest_priority_get(void);
 UINT   _tx_thread_smp_remap_solution_find(TX_THREAD *schedule_thread, ULONG available_cores, ULONG thread_possible_cores, ULONG test_possible_cores);
-ULONG  _tx_thread_smp_preemptable_threads_get(UINT priority, TX_THREAD *possible_preemption_list[]);
+ULONG  _tx_thread_smp_preemptable_threads_get(UINT priority, TX_THREAD *possible_preemption_list[TX_THREAD_SMP_MAX_CORES]);
 VOID   _tx_thread_smp_simple_priority_change(TX_THREAD *thread_ptr, UINT new_priority);
 
 #endif

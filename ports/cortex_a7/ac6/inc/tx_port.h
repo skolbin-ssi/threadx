@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -26,7 +25,7 @@
 /*  PORT SPECIFIC C INFORMATION                            RELEASE        */
 /*                                                                        */
 /*    tx_port.h                                            ARMv7-A        */
-/*                                                           6.1.11       */
+/*                                                           6.1.12       */
 /*                                                                        */
 /*  AUTHOR                                                                */
 /*                                                                        */
@@ -47,12 +46,15 @@
 /*                                                                        */
 /*    DATE              NAME                      DESCRIPTION             */
 /*                                                                        */
-/*  09-30-2020     William E. Lamie         Initial Version 6.1           */
-/*  04-02-2021     Bhupendra Naphade        Modified comment(s),updated   */
+/*  09-30-2020      William E. Lamie        Initial Version 6.1           */
+/*  04-02-2021      Bhupendra Naphade       Modified comment(s),updated   */
 /*                                            macro definition,           */
 /*                                            resulting in version 6.1.6  */
-/*  04-25-2022     Zhen Kong                Updated comments,             */
+/*  04-25-2022      Zhen Kong               Updated comments,             */
 /*                                            resulting in version 6.1.11 */
+/*  07-29-2022      Scott Larson            Updated comments, removed     */
+/*                                            unneeded temp variable,     */
+/*                                            resulting in version 6.1.12 */
 /*                                                                        */
 /**************************************************************************/
 
@@ -284,7 +286,7 @@ unsigned int   _tx_thread_interrupt_restore(UINT old_posture);
 
 #else
 
-#define TX_INTERRUPT_SAVE_AREA                  UINT interrupt_save, tx_temp;
+#define TX_INTERRUPT_SAVE_AREA                  UINT interrupt_save;
 
 #ifdef TX_ENABLE_FIQ_SUPPORT
 #define TX_DISABLE                              asm volatile (" MRS %0,CPSR; CPSID if ": "=r" (interrupt_save) );
@@ -318,7 +320,7 @@ void    tx_thread_vfp_disable(void);
 
 #ifdef TX_THREAD_INIT
 CHAR                            _tx_version_id[] =
-                                    "Copyright (c) Microsoft Corporation. All rights reserved.  *  ThreadX ARMv7-A Version 6.1.11 *";
+                                    "Copyright (c) 2024 Microsoft Corporation.  *  ThreadX ARMv7-A Version 6.4.1 *";
 #else
 extern  CHAR                    _tx_version_id[];
 #endif

@@ -1,13 +1,12 @@
-/**************************************************************************/
-/*                                                                        */
-/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-/*                                                                        */
-/*       This software is licensed under the Microsoft Software License   */
-/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-/*       and in the root directory of this software.                      */
-/*                                                                        */
-/**************************************************************************/
+/***************************************************************************
+ * Copyright (c) 2024 Microsoft Corporation 
+ * 
+ * This program and the accompanying materials are made available under the
+ * terms of the MIT License which is available at
+ * https://opensource.org/licenses/MIT.
+ * 
+ * SPDX-License-Identifier: MIT
+ **************************************************************************/
 
 
 /**************************************************************************/
@@ -19,6 +18,10 @@
 /**                                                                       */
 /**************************************************************************/
 /**************************************************************************/
+
+#ifdef TX_INCLUDE_USER_DEFINE_FILE
+#include "tx_user.h"
+#endif
 
     EXTERN  _tx_thread_current_ptr
     EXTERN  _tx_thread_execute_ptr
@@ -43,7 +46,7 @@
 /*  FUNCTION                                               RELEASE        */
 /*                                                                        */
 /*    _tx_thread_schedule                               Cortex-M33/IAR    */
-/*                                                           6.1.11       */
+/*                                                           6.2.1        */
 /*  AUTHOR                                                                */
 /*                                                                        */
 /*    Scott Larson, Microsoft Corporation                                 */
@@ -84,6 +87,8 @@
 /*                                            resulting in version 6.1.7  */
 /*  04-25-2022      Scott Larson            Added BASEPRI support,        */
 /*                                            resulting in version 6.1.11 */
+/*  03-08-2023      Scott Larson            Added preproc FPU option,     */
+/*                                            resulting in version 6.2.1  */
 /*                                                                        */
 /**************************************************************************/
 // VOID   _tx_thread_schedule(VOID)
@@ -374,6 +379,8 @@ _tx_svc_secure_init:
 
     PUBLIC  _tx_vfp_access
 _tx_vfp_access:
+#ifdef __ARMVFP__
     VMOV.F32 s0, s0                                 // Simply access the VFP
+#endif
     BX       lr                                     // Return to caller
     END

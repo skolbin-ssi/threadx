@@ -1,13 +1,12 @@
-@/**************************************************************************/
-@/*                                                                        */
-@/*       Copyright (c) Microsoft Corporation. All rights reserved.        */
-@/*                                                                        */
-@/*       This software is licensed under the Microsoft Software License   */
-@/*       Terms for Microsoft Azure RTOS. Full text of the license can be  */
-@/*       found in the LICENSE file at https://aka.ms/AzureRTOS_EULA       */
-@/*       and in the root directory of this software.                      */
-@/*                                                                        */
-@/**************************************************************************/
+@/***************************************************************************
+@ * Copyright (c) 2024 Microsoft Corporation 
+@ * 
+@ * This program and the accompanying materials are made available under the
+@ * terms of the MIT License which is available at
+@ * https://opensource.org/licenses/MIT.
+@ * 
+@ * SPDX-License-Identifier: MIT
+@ **************************************************************************/
 @
 @
 @/**************************************************************************/
@@ -19,18 +18,10 @@
 @/**                                                                       */
 @/**************************************************************************/
 @/**************************************************************************/
-@
-@
-@#define TX_SOURCE_CODE
-@
-@
-@/* Include necessary system files.  */
-@
-@#include "tx_api.h"
-@#include "tx_thread.h"
-@#include "tx_timer.h"
-@
-@
+#ifdef TX_INCLUDE_USER_DEFINE_FILE
+#include "tx_user.h"
+#endif
+
 SVC_MODE        =       0xD3                    @ SVC mode
 FIQ_MODE        =       0xD1                    @ FIQ mode
 MODE_MASK       =       0x1F                    @ Mode mask 
@@ -136,7 +127,7 @@ _tx_thread_fiq_context_restore:
 __tx_thread_fiq_not_nested_restore:
 @
 @    /* Determine if a thread was interrupted and no preemption is required.  */
-@    else if (((_tx_thread_current_ptr) && (_tx_thread_current_ptr == _tx_thread_execute_ptr) 
+@    else if (((_tx_thread_current_ptr) && (_tx_thread_current_ptr == _tx_thread_execute_ptr))
 @               || (_tx_thread_preempt_disable))
 @    {
 @
